@@ -1,23 +1,58 @@
-import logo from './logo.svg';
+import { useState, useRef, useEffect } from 'react';
 import './App.css';
 
 function App() {
+
+  const [name, setName] = useState('');
+
+  let initialTodos = [
+  ];
+
+  const [todos, setTodos] = useState(
+    initialTodos
+  );
+
+    useEffect(() => {
+      const saved = localStorage.getItem("todos");
+      if (saved) setTodos(JSON.parse(saved));
+    }, []);
+
+    useEffect(() => {
+      localStorage.setItem("todos", JSON.stringify(todos));
+    }, [todos]);
+
+  let nextId = useRef(2);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Todoリスト:</h1>
+      <input
+        value={name}
+        onChange={e => setName(e.target.value)}
+      />
+      <button onClick={() => {
+        setTodos([
+          ...todos,
+          { id: nextId.current, name: name }
+        ]);
+        nextId.current += 1;
+        setName('');
+      }}>追加</button>
+      <ul>
+        {todos.map(todo => (
+          <li key={todo.id}>{todo.name}
+            <button onClick={() => {
+              setTodos(
+                todos.filter(a =>
+                  a.id !== todo.id
+                )
+              );
+            }}>
+              削除
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
